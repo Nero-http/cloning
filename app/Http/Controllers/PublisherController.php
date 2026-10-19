@@ -2,40 +2,44 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Publisher;
+use App\Services\PublisherService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class PublisherController extends Controller
 {
-    public function index()
-    {
-        $publishers = Publisher::select(
-            'id',
-            'publisher_name'
-        )
-            ->with([
-                'authors:id,publisher_id,name',
-                'books:id,publisher_id,author_id,title,slug',
-            ])
-            ->get();
 
-        return Inertia::render('publishers/index', [
-            'publishers' => $publishers,
+    public function __construct(
+        private readonly PublisherService $publisherService 
+    )
+    {}
+
+    public function index(Request $req): Response
+    {
+        $search = $req -> search;
+        $publishers = $this -> 
+        publisherService -> paginate(is_string($search) ? $search : null);
+
+        return Inertia::render ('products/index', [
+            'publisher' => $publishers,
+            'filters' => [
+                'search' => is_String ($search) ? $search : ''
+            ]
         ]);
     }
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(): Response
     {
-        //
+        return Inertia::render ('publishers/create');
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(PublisherRequest $request)
     {
         //
     }
